@@ -1,50 +1,47 @@
-# React + TypeScript + Vite
+# DayGraph
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+GitHub 스타일의 기여 히트맵으로 일일 계획과 습관을 추적하는 개인 생산성 시각화 앱입니다.
 
-Currently, two official plugins are available:
+## 주요 기능
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react/README.md) uses [Babel](https://babeljs.io/) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+- **일일 계획 관리** — 시간, 카테고리별로 계획을 추가하고 완료(Done), 미달성(Missed), 대체(Replaced) 상태로 기록
+- **기여 히트맵** — 1년간의 달성률을 GitHub 스타일 히트맵으로 시각화
+- **통계 대시보드** — 연속 달성 스트릭, 전체 달성률, 카테고리별 분석 제공
+- **카테고리 분류** — 운동, 공부, 개발, 독서, 기타 등 카테고리별 계획 관리
 
-## Expanding the ESLint configuration
+## 기술 스택
 
-If you are developing a production application, we recommend updating the configuration to enable type aware lint rules:
+- React 18 + TypeScript
+- Vite
+- Tailwind CSS
+- date-fns (한국어 로케일)
+- localStorage 기반 데이터 저장
 
-- Configure the top-level `parserOptions` property like this:
+## 시작하기
 
-```js
-export default tseslint.config({
-  languageOptions: {
-    // other options...
-    parserOptions: {
-      project: ['./tsconfig.node.json', './tsconfig.app.json'],
-      tsconfigRootDir: import.meta.dirname,
-    },
-  },
-})
+```bash
+npm install
+npm run dev
 ```
 
-- Replace `tseslint.configs.recommended` to `tseslint.configs.recommendedTypeChecked` or `tseslint.configs.strictTypeChecked`
-- Optionally add `...tseslint.configs.stylisticTypeChecked`
-- Install [eslint-plugin-react](https://github.com/jsx-eslint/eslint-plugin-react) and update the config:
+## 배포
 
-```js
-// eslint.config.js
-import react from 'eslint-plugin-react'
+GitHub Pages로 배포됩니다.
 
-export default tseslint.config({
-  // Set the react version
-  settings: { react: { version: '18.3' } },
-  plugins: {
-    // Add the react plugin
-    react,
-  },
-  rules: {
-    // other rules...
-    // Enable its recommended rules
-    ...react.configs.recommended.rules,
-    ...react.configs['jsx-runtime'].rules,
-  },
-})
+```bash
+npm run deploy
+```
+
+## 프로젝트 구조
+
+```
+src/
+├── components/
+│   ├── dashboard/   # 메인 히트맵 대시보드
+│   ├── graph/       # 히트맵 시각화
+│   ├── plan/        # 계획 관리 (추가, 수정, 상태 변경)
+│   ├── stats/       # 통계 페이지
+│   └── layout/      # 헤더 네비게이션
+├── lib/             # 유틸리티 (스토리지, 날짜, 색상)
+└── types/           # TypeScript 타입 정의
 ```
