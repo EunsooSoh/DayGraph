@@ -1,3 +1,8 @@
+/**
+ * Copyright (c) 2026 daygraph. All rights reserved.
+ * Licensed under the MIT License.
+ */
+
 import { Link, useLocation } from 'react-router-dom';
 
 const NAV_ITEMS = [

@@ -1,3 +1,8 @@
+/**
+ * Copyright (c) 2026 daygraph. All rights reserved.
+ * Licensed under the MIT License.
+ */
+
 export type RecordStatus = 'DONE' | 'MISSED' | 'REPLACED';
 export type CellColor = 'DONE' | 'MISSED' | 'REPLACED' | 'EMPTY' | 'PARTIAL';
 

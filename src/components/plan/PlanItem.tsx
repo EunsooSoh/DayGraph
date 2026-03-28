@@ -1,3 +1,8 @@
+/**
+ * Copyright (c) 2026 daygraph. All rights reserved.
+ * Licensed under the MIT License.
+ */
+
 import { useState } from 'react';
 import type { Plan, Record, RecordStatus } from '../../types';
 import * as storage from '../../lib/storage';

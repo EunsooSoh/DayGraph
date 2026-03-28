@@ -1,3 +1,8 @@
+/**
+ * Copyright (c) 2026 daygraph. All rights reserved.
+ * Licensed under the MIT License.
+ */
+
 import type { Plan, Record } from '../types';
 
 const PLANS_KEY = 'daygraph_plans';

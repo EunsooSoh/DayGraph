@@ -1,3 +1,8 @@
+/**
+ * Copyright (c) 2026 daygraph. All rights reserved.
+ * Licensed under the MIT License.
+ */
+
 import type { CellColor, DaySummary, Plan, Record } from '../types';
 
 export function computeDaySummary(date: string, plans: Plan[], records: Record[]): DaySummary {

@@ -1,3 +1,8 @@
+/**
+ * Copyright (c) 2026 daygraph. All rights reserved.
+ * Licensed under the MIT License.
+ */
+
 import { useState, useMemo } from 'react';
 import { parseISO } from 'date-fns';
 import { buildYearGrid, formatDisplay } from '../../lib/date';

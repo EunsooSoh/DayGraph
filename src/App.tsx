@@ -1,3 +1,8 @@
+/**
+ * Copyright (c) 2026 daygraph. All rights reserved.
+ * Licensed under the MIT License.
+ */
+
 import { HashRouter, Routes, Route } from 'react-router-dom';
 import Header from './components/layout/Header';
 import Dashboard from './components/dashboard/Dashboard';

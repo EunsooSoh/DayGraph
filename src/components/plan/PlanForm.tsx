@@ -1,3 +1,8 @@
+/**
+ * Copyright (c) 2026 daygraph. All rights reserved.
+ * Licensed under the MIT License.
+ */
+
 import { useState } from 'react';
 import * as storage from '../../lib/storage';
 import { uid } from '../../lib/date';
