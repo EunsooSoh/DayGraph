@@ -4,13 +4,14 @@
  */
 
 import { useState } from 'react';
-import type { Plan, Record, RecordStatus } from '../../types';
+import type { Plan, PlanRecord, RecordStatus } from '../../types';
 import * as storage from '../../lib/storage';
 import { uid } from '../../lib/date';
+import { CATEGORY_COLORS } from '../../lib/constants';
 
 interface Props {
   plan: Plan;
-  record?: Record;
+  record?: PlanRecord;
   onUpdate: () => void;
 }
 
@@ -20,13 +21,6 @@ const STATUS_STYLES: { [K in RecordStatus]: { bg: string; border: string; label:
   REPLACED: { bg: 'bg-blue-900/40', border: 'border-blue-500', label: 'Replaced' },
 };
 
-const CATEGORY_COLORS: { [key: string]: string } = {
-  '운동': 'bg-green-600',
-  '공부': 'bg-blue-600',
-  '개발': 'bg-purple-600',
-  '독서': 'bg-yellow-600',
-  '기타': 'bg-gray-600',
-};
 
 export default function PlanItem({ plan, record, onUpdate }: Props) {
   const [showMemo, setShowMemo] = useState(false);
@@ -60,6 +54,7 @@ export default function PlanItem({ plan, record, onUpdate }: Props) {
   }
 
   function handleDelete() {
+    if (!window.confirm('이 계획을 삭제하시겠습니까?')) return;
     storage.deletePlan(plan.id);
     onUpdate();
   }

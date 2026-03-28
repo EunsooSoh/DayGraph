@@ -6,8 +6,7 @@
 import { useState } from 'react';
 import * as storage from '../../lib/storage';
 import { uid } from '../../lib/date';
-
-const CATEGORIES = ['운동', '공부', '개발', '독서', '기타'];
+import { CATEGORIES } from '../../lib/constants';
 
 interface Props {
   date: string;

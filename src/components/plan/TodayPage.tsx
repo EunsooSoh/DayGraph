@@ -3,25 +3,29 @@
  * Licensed under the MIT License.
  */
 
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useMemo } from 'react';
 import { parseISO } from 'date-fns';
-import { today, formatDisplay, formatDate } from '../../lib/date';
+import { useSearchParams } from 'react-router-dom';
+import { today, formatDisplay } from '../../lib/date';
 import * as storage from '../../lib/storage';
 import PlanForm from './PlanForm';
 import PlanItem from './PlanItem';
 
 export default function TodayPage() {
-  const [selectedDate, setSelectedDate] = useState(today());
+  const [searchParams] = useSearchParams();
+  const initialDate = searchParams.get('date') || today();
+  const [selectedDate, setSelectedDate] = useState(initialDate);
   const [tick, setTick] = useState(0);
 
   const refresh = useCallback(() => setTick((t) => t + 1), []);
 
-  const plans = storage.getPlansByDate(selectedDate);
-  const records = storage.getRecordsByDate(selectedDate);
-  const recordMap = new Map(records.map((r) => [r.planId, r]));
-
-  const doneCount = records.filter((r) => r.status === 'DONE').length;
-  const total = plans.length;
+  const { plans, recordMap, doneCount, total } = useMemo(() => {
+    const plans = storage.getPlansByDate(selectedDate);
+    const records = storage.getRecordsByDate(selectedDate);
+    const recordMap = new Map(records.map((r) => [r.planId, r]));
+    const doneCount = records.filter((r) => r.status === 'DONE').length;
+    return { plans, records, recordMap, doneCount, total: plans.length };
+  }, [selectedDate, tick]);
 
   return (
     <div className="max-w-2xl mx-auto">

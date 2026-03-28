@@ -16,7 +16,7 @@ export interface Plan {
   createdAt: string;
 }
 
-export interface Record {
+export interface PlanRecord {
   id: string;
   planId: string;
   status: RecordStatus;

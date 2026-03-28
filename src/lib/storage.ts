@@ -3,7 +3,7 @@
  * Licensed under the MIT License.
  */
 
-import type { Plan, Record } from '../types';
+import type { Plan, PlanRecord } from '../types';
 
 const PLANS_KEY = 'daygraph_plans';
 const RECORDS_KEY = 'daygraph_records';
@@ -55,20 +55,20 @@ export function deletePlan(id: string) {
 }
 
 // Records
-export function getRecords(): Record[] {
-  return load<Record>(RECORDS_KEY);
+export function getRecords(): PlanRecord[] {
+  return load<PlanRecord>(RECORDS_KEY);
 }
 
-export function getRecordByPlanId(planId: string): Record | undefined {
+export function getRecordByPlanId(planId: string): PlanRecord | undefined {
   return getRecords().find((r) => r.planId === planId);
 }
 
-export function getRecordsByDate(date: string): Record[] {
+export function getRecordsByDate(date: string): PlanRecord[] {
   const planIds = new Set(getPlansByDate(date).map((p) => p.id));
   return getRecords().filter((r) => planIds.has(r.planId));
 }
 
-export function upsertRecord(record: Record) {
+export function upsertRecord(record: PlanRecord) {
   const records = getRecords();
   const idx = records.findIndex((r) => r.planId === record.planId);
   if (idx >= 0) {

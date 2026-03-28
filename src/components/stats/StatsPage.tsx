@@ -7,7 +7,7 @@ import { useMemo } from 'react';
 import * as storage from '../../lib/storage';
 import { computeDaySummary } from '../../lib/color';
 import { today } from '../../lib/date';
-import { parseISO, differenceInDays, subDays, format } from 'date-fns';
+import { parseISO, subDays, format } from 'date-fns';
 
 export default function StatsPage() {
   const stats = useMemo(() => {
@@ -34,7 +34,6 @@ export default function StatsPage() {
     // Streak calculation
     let currentStreak = 0;
     const todayStr = today();
-    let checkDate = todayStr;
 
     // Check streak backwards from today
     for (let i = 0; i < 365; i++) {

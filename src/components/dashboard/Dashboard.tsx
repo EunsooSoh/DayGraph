@@ -3,7 +3,7 @@
  * Licensed under the MIT License.
  */
 
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import Heatmap from '../graph/Heatmap';
 import { today, formatDisplay } from '../../lib/date';
@@ -13,7 +13,13 @@ import { parseISO } from 'date-fns';
 
 export default function Dashboard() {
   const [year, setYear] = useState(new Date().getFullYear());
+  const [tick, setTick] = useState(0);
   const navigate = useNavigate();
+
+  // Re-render heatmap when navigating back to dashboard
+  useEffect(() => {
+    setTick((t) => t + 1);
+  }, []);
 
   const todayStr = today();
   const todaySummary = useMemo(() => {
@@ -82,7 +88,7 @@ export default function Dashboard() {
             </button>
           </div>
         </div>
-        <Heatmap year={year} onSelectDate={handleSelectDate} />
+        <Heatmap key={tick} year={year} onSelectDate={handleSelectDate} />
       </div>
     </div>
   );

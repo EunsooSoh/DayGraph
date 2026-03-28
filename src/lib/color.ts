@@ -3,9 +3,9 @@
  * Licensed under the MIT License.
  */
 
-import type { CellColor, DaySummary, Plan, Record } from '../types';
+import type { CellColor, DaySummary, Plan, PlanRecord } from '../types';
 
-export function computeDaySummary(date: string, plans: Plan[], records: Record[]): DaySummary {
+export function computeDaySummary(date: string, plans: Plan[], records: PlanRecord[]): DaySummary {
   const recordMap = new Map(records.map((r) => [r.planId, r]));
   const totalPlans = plans.length;
 
@@ -48,11 +48,12 @@ export function computeDaySummary(date: string, plans: Plan[], records: Record[]
   return { date, totalPlans, doneCount, missedCount, replacedCount, primaryColor, intensity };
 }
 
-const COLOR_MAP: Record<string, string[]> = {
+const COLOR_MAP: { [K in CellColor]: string[] } = {
   // [intensity 0.25, 0.5, 0.75, 1.0]
   DONE:     ['#0e4429', '#006d32', '#26a641', '#39d353'],
   MISSED:   ['#5c1a1a', '#9b2c2c', '#dc2626', '#f87171'],
   REPLACED: ['#1e3a5f', '#1d4ed8', '#3b82f6', '#60a5fa'],
+  PARTIAL:  ['#0e4429', '#006d32', '#26a641', '#39d353'],
   EMPTY:    ['#161b22', '#161b22', '#161b22', '#161b22'],
 };
 

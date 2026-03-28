@@ -9,7 +9,6 @@ import {
   endOfYear,
   eachDayOfInterval,
   getDay,
-  startOfWeek,
   isToday as isTodayFn,
   parseISO,
 } from 'date-fns';
@@ -45,7 +44,6 @@ export interface WeekGrid {
 export function buildYearGrid(year: number): WeekGrid {
   const days = getYearDays(year);
   const firstDate = parseISO(days[0]);
-  const startDow = getDay(startOfWeek(firstDate, { weekStartsOn: 0 }));
 
   const weeks: string[][] = [];
   let currentWeek: string[] = [];
@@ -87,5 +85,5 @@ export function buildYearGrid(year: number): WeekGrid {
 }
 
 export function uid(): string {
-  return Date.now().toString(36) + Math.random().toString(36).slice(2, 8);
+  return crypto.randomUUID();
 }
