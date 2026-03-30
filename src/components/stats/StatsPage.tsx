@@ -114,7 +114,7 @@ export default function StatsPage() {
               <div className="bg-red-500" style={{ width: `${(stats.totalMissed / stats.totalPlans) * 100}%` }} />
             )}
           </div>
-          <div className="flex gap-4 text-xs text-gray-400">
+          <div className="flex gap-4 text-xs text-gray-400 whitespace-nowrap">
             <span><span className="text-green-400">{stats.totalDone}</span> done</span>
             <span><span className="text-blue-400">{stats.totalReplaced}</span> replaced</span>
             <span><span className="text-red-400">{stats.totalMissed}</span> missed</span>

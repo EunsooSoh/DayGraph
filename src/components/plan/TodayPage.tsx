@@ -30,7 +30,7 @@ export default function TodayPage() {
   return (
     <div className="max-w-2xl mx-auto">
       {/* Date selector */}
-      <div className="flex items-center justify-between mb-6">
+      <div className="flex items-center justify-between mb-6 whitespace-nowrap">
         <div>
           <h2 className="text-xl font-bold">{formatDisplay(parseISO(selectedDate))}</h2>
           <p className="text-sm text-gray-400">

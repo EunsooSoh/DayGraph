@@ -148,7 +148,7 @@ export default function Heatmap({ year, onSelectDate }: Props) {
       )}
 
       {/* Legend */}
-      <div className="flex items-center gap-2 mt-3 text-xs text-gray-400 justify-end">
+      <div className="flex items-center gap-2 mt-3 text-xs text-gray-400 justify-end whitespace-nowrap">
         <span>Less</span>
         {['#161b22', '#0e4429', '#006d32', '#26a641', '#39d353'].map((c) => (
           <span key={c} className="w-3 h-3 rounded-sm inline-block" style={{ backgroundColor: c }} />

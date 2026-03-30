@@ -86,7 +86,7 @@ export default function PlanItem({ plan, record, onUpdate }: Props) {
 
   return (
     <div className={`rounded-lg border p-3 mb-2 transition-all ${style ? `${style.bg} ${style.border}` : 'border-gray-700 bg-gray-800/50'}`}>
-      <div className="flex items-center justify-between gap-2">
+      <div className="flex items-center justify-between gap-2 whitespace-nowrap">
         <div className="flex items-center gap-2 flex-1 min-w-0">
           {plan.time && (
             <span className="text-xs text-gray-400 font-mono shrink-0 w-[3.2rem] text-right">
