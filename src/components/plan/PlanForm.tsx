@@ -38,7 +38,7 @@ export default function PlanForm({ date, onAdd }: Props) {
   }
 
   return (
-    <form onSubmit={handleSubmit} className="flex gap-2 mb-4">
+    <form onSubmit={handleSubmit} className="flex gap-2 mb-4 overflow-x-auto whitespace-nowrap">
       <input
         type="time"
         value={time}
