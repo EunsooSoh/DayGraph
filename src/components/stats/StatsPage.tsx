@@ -116,6 +116,12 @@ export default function StatsPage() {
     <div className="max-w-2xl mx-auto">
       <h2 className="text-xl font-bold mb-6">Statistics</h2>
 
+      {/* Current Streak - large block */}
+      <div className="bg-gray-800/50 border border-gray-700 rounded-lg p-6 text-center mb-4">
+        <div className="text-4xl font-bold text-green-400">{stats.currentStreak}d</div>
+        <div className="text-sm text-gray-400 mt-1">Current Streak</div>
+      </div>
+
       {/* Week navigation */}
       <div className="flex items-center justify-between mb-4">
         <button
@@ -137,9 +143,8 @@ export default function StatsPage() {
         </button>
       </div>
 
-      {/* Overview cards */}
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mb-8">
-        <StatCard label="Current Streak" value={`${stats.currentStreak}d`} color="text-green-400" />
+      {/* Weekly overview cards */}
+      <div className="grid grid-cols-3 gap-3 mb-8">
         <StatCard label="Completion Rate" value={`${stats.completionRate}%`} color="text-blue-400" />
         <StatCard label="Total Plans" value={stats.totalPlans.toString()} color="text-white" />
         <StatCard label="Done" value={stats.totalDone.toString()} color="text-green-400" />
