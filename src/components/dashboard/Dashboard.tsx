@@ -41,22 +41,24 @@ export default function Dashboard() {
             <h2 className="text-sm text-gray-400">Today</h2>
             <p className="text-lg font-semibold">{formatDisplay(parseISO(todayStr))}</p>
           </div>
-          <div className="text-right">
-            {todaySummary.totalPlans > 0 ? (
-              <>
+          <div className="flex items-center gap-3">
+            {todaySummary.totalPlans > 0 && (
+              <div className="text-right">
                 <p className="text-2xl font-bold text-green-400">
                   {todaySummary.doneCount}/{todaySummary.totalPlans}
                 </p>
                 <p className="text-xs text-gray-400">completed</p>
-              </>
-            ) : (
-              <button
-                onClick={() => navigate('/today')}
-                className="bg-green-600 text-white px-4 py-2 rounded text-sm hover:bg-green-500"
-              >
-                Add plans
-              </button>
+              </div>
             )}
+            <button
+              onClick={() => navigate('/today')}
+              className="bg-green-600 text-white p-2 rounded-lg hover:bg-green-500"
+              title="Add plan"
+            >
+              <svg xmlns="http://www.w3.org/2000/svg" className="w-5 h-5" viewBox="0 0 20 20" fill="currentColor">
+                <path fillRule="evenodd" d="M10 3a1 1 0 011 1v5h5a1 1 0 110 2h-5v5a1 1 0 11-2 0v-5H4a1 1 0 110-2h5V4a1 1 0 011-1z" clipRule="evenodd" />
+              </svg>
+            </button>
           </div>
         </div>
       </div>
