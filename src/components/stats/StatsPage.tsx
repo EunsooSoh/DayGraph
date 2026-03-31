@@ -102,6 +102,29 @@ export default function StatsPage() {
       }
     }
 
+    // Hourly miss stats — only for plans with a time field
+    const hourlyStats = new Map<number, { total: number; missed: number }>();
+    for (const p of weekPlans) {
+      if (!p.time) continue;
+      const hour = parseInt(p.time.split(':')[0], 10);
+      const entry = hourlyStats.get(hour) || { total: 0, missed: 0 };
+      entry.total++;
+      const rec = recordMap.get(p.id);
+      if (!rec || rec.status === 'MISSED') entry.missed++;
+      hourlyStats.set(hour, entry);
+    }
+
+    const worstHours = Array.from(hourlyStats.entries())
+      .filter(([, s]) => s.missed > 0)
+      .map(([hour, s]) => ({
+        hour,
+        label: `${hour.toString().padStart(2, '0')}:00`,
+        missed: s.missed,
+        total: s.total,
+        missRate: Math.round((s.missed / s.total) * 100),
+      }))
+      .sort((a, b) => b.missRate - a.missRate || b.missed - a.missed);
+
     const weekLabel = `${format(currentWeekStart, 'M/d', { locale: ko })} ~ ${format(currentWeekEnd, 'M/d', { locale: ko })}`;
     const isCurrentWeek = weekOffset === 0;
     const isFutureWeek = isAfter(currentWeekStart, todayDate);
@@ -115,6 +138,7 @@ export default function StatsPage() {
       weekLabel,
       isCurrentWeek,
       isFutureWeek,
+      worstHours: worstHours.slice(0, 3),
       categories: Array.from(categoryStats.entries()).map(([name, s]) => ({
         name,
         done: s.done,
@@ -181,6 +205,31 @@ export default function StatsPage() {
             <span><span className="text-green-400">{weekStats.totalDone}</span> done</span>
             <span><span className="text-blue-400">{weekStats.totalReplaced}</span> replaced</span>
             <span><span className="text-red-400">{weekStats.totalMissed}</span> missed</span>
+          </div>
+        </div>
+      )}
+
+      {/* Worst hours */}
+      {weekStats.worstHours.length > 0 && (
+        <div className="bg-gray-800/50 border border-gray-700 rounded-lg p-4 mb-6">
+          <h3 className="text-sm font-semibold text-gray-300 mb-3">Weak Hours</h3>
+          <div className="space-y-2">
+            {weekStats.worstHours.map((h, i) => (
+              <div key={h.hour} className="flex items-center gap-3">
+                <span className={`text-lg font-mono font-bold ${i === 0 ? 'text-red-400' : 'text-gray-400'}`}>
+                  {h.label}
+                </span>
+                <div className="flex-1 bg-gray-700 rounded-full h-2">
+                  <div
+                    className="bg-red-500 h-2 rounded-full transition-all"
+                    style={{ width: `${h.missRate}%` }}
+                  />
+                </div>
+                <span className="text-xs text-gray-400 whitespace-nowrap">
+                  {h.missed}/{h.total} missed ({h.missRate}%)
+                </span>
+              </div>
+            ))}
           </div>
         </div>
       )}
