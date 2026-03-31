@@ -13,6 +13,20 @@ export interface Plan {
   title: string;
   category: string;
   order: number;
+  recurringPlanId?: string;
+  createdAt: string;
+}
+
+export interface RecurringPlan {
+  id: string;
+  title: string;
+  time?: string; // HH:mm
+  category: string;
+  recurrence: 'daily' | 'weekly';
+  weekdays?: number[]; // 0(일)~6(토)
+  startDate: string; // YYYY-MM-DD
+  endDate?: string; // YYYY-MM-DD
+  active: boolean;
   createdAt: string;
 }
 

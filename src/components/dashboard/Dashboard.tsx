@@ -65,7 +65,7 @@ export default function Dashboard() {
       <div className="bg-gray-800/50 border border-gray-700 rounded-lg p-4">
         <div className="flex items-center justify-between mb-4">
           <h2 className="text-sm font-semibold text-gray-300">
-            {year} Contributions
+            {year}년 Contributions
           </h2>
           <div className="flex gap-2">
             <button

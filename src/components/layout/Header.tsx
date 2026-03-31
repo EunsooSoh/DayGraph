@@ -9,6 +9,7 @@ const NAV_ITEMS = [
   { path: '/', label: 'Dashboard' },
   { path: '/today', label: 'Today' },
   { path: '/stats', label: 'Stats' },
+  { path: '/recurring', label: 'Recurring' },
 ];
 
 export default function Header() {

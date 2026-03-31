@@ -8,6 +8,7 @@ import Header from './components/layout/Header';
 import Dashboard from './components/dashboard/Dashboard';
 import TodayPage from './components/plan/TodayPage';
 import StatsPage from './components/stats/StatsPage';
+import RecurringPage from './components/recurring/RecurringPage';
 
 export default function App() {
   return (
@@ -19,6 +20,7 @@ export default function App() {
             <Route path="/" element={<Dashboard />} />
             <Route path="/today" element={<TodayPage />} />
             <Route path="/stats" element={<StatsPage />} />
+            <Route path="/recurring" element={<RecurringPage />} />
           </Routes>
         </main>
       </div>

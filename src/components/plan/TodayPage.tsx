@@ -20,6 +20,7 @@ export default function TodayPage() {
   const refresh = useCallback(() => setTick((t) => t + 1), []);
 
   const { plans, recordMap, doneCount, total } = useMemo(() => {
+    storage.applyRecurringPlans(selectedDate);
     const plans = storage.getPlansByDate(selectedDate);
     const records = storage.getRecordsByDate(selectedDate);
     const recordMap = new Map(records.map((r) => [r.planId, r]));
