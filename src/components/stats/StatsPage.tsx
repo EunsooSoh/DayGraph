@@ -19,7 +19,8 @@ export default function StatsPage() {
     const recordMap = new Map(records.map((r) => [r.planId, r]));
 
     // Calculate week range (Mon-Sun)
-    const todayDate = new Date();
+    const todayStr = today();
+    const todayDate = parseISO(todayStr);
     const currentWeekStart = startOfWeek(addWeeks(todayDate, weekOffset), { weekStartsOn: 1 });
     const currentWeekEnd = endOfWeek(addWeeks(todayDate, weekOffset), { weekStartsOn: 1 });
     const weekStartStr = format(currentWeekStart, 'yyyy-MM-dd');
@@ -46,7 +47,6 @@ export default function StatsPage() {
 
     // Streak calculation (still global, not week-scoped)
     let currentStreak = 0;
-    const todayStr = today();
     const allPlansByDate = new Map<string, typeof plans>();
     for (const p of plans) {
       const arr = allPlansByDate.get(p.date) || [];
