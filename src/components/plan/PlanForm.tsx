@@ -75,7 +75,7 @@ export default function PlanForm({ date, onAdd }: Props) {
         type="submit"
         className="bg-green-600 text-white px-4 py-2 rounded text-sm hover:bg-green-500 transition-colors"
       >
-        추가
+        +
       </button>
     </form>
   );
