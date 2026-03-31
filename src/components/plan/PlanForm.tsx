@@ -53,7 +53,7 @@ export default function PlanForm({ date, onAdd }: Props) {
         value={time}
         step={300}
         onChange={(e) => setTime(e.target.value)}
-        className="sr-only"
+        className="absolute opacity-0 w-0 h-0"
       />
       <select
         value={category}
