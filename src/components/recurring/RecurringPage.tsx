@@ -3,13 +3,14 @@
  * Licensed under the MIT License.
  */
 
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useRef } from 'react';
 import type { RecurringPlan } from '../../types';
 import { uid, today } from '../../lib/date';
 import { CATEGORIES, CATEGORY_COLORS } from '../../lib/constants';
 import * as storage from '../../lib/storage';
 
 const WEEKDAY_LABELS = ['일', '월', '화', '수', '목', '금', '토'];
+const WEEKDAY_ORDER = [1, 2, 3, 4, 5, 6, 0]; // 월~일 순서
 
 export default function RecurringPage() {
   const [tick, setTick] = useState(0);
@@ -23,6 +24,7 @@ export default function RecurringPage() {
   const [startDate, setStartDate] = useState(today());
   const [endDate, setEndDate] = useState('');
 
+  const timeRef = useRef<HTMLInputElement>(null);
   const plans = storage.getRecurringPlans();
   // suppress lint: tick is used to trigger re-render
   void tick;
@@ -73,7 +75,8 @@ export default function RecurringPage() {
 
   function formatRecurrence(plan: RecurringPlan) {
     if (plan.recurrence === 'daily') return '매일';
-    return plan.weekdays?.map((d) => WEEKDAY_LABELS[d]).join(', ') || '';
+    const sorted = plan.weekdays?.slice().sort((a, b) => WEEKDAY_ORDER.indexOf(a) - WEEKDAY_ORDER.indexOf(b));
+    return sorted?.map((d) => WEEKDAY_LABELS[d]).join(', ') || '';
   }
 
   return (
@@ -83,13 +86,20 @@ export default function RecurringPage() {
       {/* Add form */}
       <form onSubmit={handleSubmit} className="bg-gray-800/50 border border-gray-700 rounded-lg p-4 mb-6">
         <div className="flex gap-2 mb-3">
+          <button
+            type="button"
+            onClick={() => timeRef.current?.showPicker()}
+            className="bg-gray-800 border border-gray-600 text-white text-sm rounded px-2 py-2 shrink-0"
+          >
+            {time || '⏱'}
+          </button>
           <input
+            ref={timeRef}
             type="time"
             value={time}
             step={300}
             onChange={(e) => setTime(e.target.value)}
-            className="bg-gray-800 border border-gray-600 text-white text-sm rounded px-2 py-2"
-            placeholder="시간"
+            className="absolute opacity-0 w-0 h-0"
           />
           <select
             value={category}
@@ -135,7 +145,7 @@ export default function RecurringPage() {
         {/* Weekday picker */}
         {recurrence === 'weekly' && (
           <div className="flex gap-1 mb-3">
-            {WEEKDAY_LABELS.map((label, i) => (
+            {WEEKDAY_ORDER.map((i) => (
               <button
                 key={i}
                 type="button"
@@ -146,7 +156,7 @@ export default function RecurringPage() {
                     : 'bg-gray-700 text-gray-400 hover:bg-gray-600'
                 }`}
               >
-                {label}
+                {WEEKDAY_LABELS[i]}
               </button>
             ))}
           </div>
