@@ -3,22 +3,65 @@
  * Licensed under the MIT License.
  */
 
-import { useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import * as storage from '../../lib/storage';
 import { computeDaySummary } from '../../lib/color';
 import { today } from '../../lib/date';
 import { parseISO, subDays, format, startOfWeek, endOfWeek, addWeeks, isAfter } from 'date-fns';
 import { ko } from 'date-fns/locale';
+import type { Plan, PlanRecord } from '../../types';
 
 export default function StatsPage() {
   const [weekOffset, setWeekOffset] = useState(0);
+  const [plans, setPlans] = useState<Plan[]>(() => storage.getPlans());
+  const [records, setRecords] = useState<PlanRecord[]>(() => storage.getRecords());
 
-  const stats = useMemo(() => {
-    const plans = storage.getPlans();
-    const records = storage.getRecords();
-    const recordMap = new Map(records.map((r) => [r.planId, r]));
+  const refreshData = useCallback(() => {
+    setPlans(storage.getPlans());
+    setRecords(storage.getRecords());
+  }, []);
 
-    // Calculate week range (Mon-Sun)
+  useEffect(() => {
+    refreshData();
+    window.addEventListener('focus', refreshData);
+    return () => window.removeEventListener('focus', refreshData);
+  }, [refreshData]);
+
+  const recordMap = useMemo(() => new Map(records.map((r) => [r.planId, r])), [records]);
+
+  // Streak calculation — independent of weekOffset
+  const currentStreak = useMemo(() => {
+    const todayStr = today();
+    const allPlansByDate = new Map<string, Plan[]>();
+    for (const p of plans) {
+      const arr = allPlansByDate.get(p.date) || [];
+      arr.push(p);
+      allPlansByDate.set(p.date, arr);
+    }
+
+    let streak = 0;
+    for (let i = 0; i < 365; i++) {
+      const dateStr = format(subDays(parseISO(todayStr), i), 'yyyy-MM-dd');
+      const datePlans = allPlansByDate.get(dateStr);
+      if (!datePlans || datePlans.length === 0) {
+        if (i === 0) continue;
+        break;
+      }
+      const dateRecords = datePlans.map((p) => recordMap.get(p.id)).filter(Boolean) as PlanRecord[];
+      const summary = computeDaySummary(dateStr, datePlans, dateRecords);
+      if (summary.doneCount > 0 && summary.missedCount === 0) {
+        streak++;
+      } else if (i === 0) {
+        continue;
+      } else {
+        break;
+      }
+    }
+    return streak;
+  }, [plans, recordMap]);
+
+  // Weekly stats — recalculates on week navigation or data change
+  const weekStats = useMemo(() => {
     const todayStr = today();
     const todayDate = parseISO(todayStr);
     const currentWeekStart = startOfWeek(addWeeks(todayDate, weekOffset), { weekStartsOn: 1 });
@@ -26,11 +69,9 @@ export default function StatsPage() {
     const weekStartStr = format(currentWeekStart, 'yyyy-MM-dd');
     const weekEndStr = format(currentWeekEnd, 'yyyy-MM-dd');
 
-    // Filter plans for the selected week
     const weekPlans = plans.filter((p) => p.date >= weekStartStr && p.date <= weekEndStr);
 
-    // Group plans by date
-    const plansByDate = new Map<string, typeof plans>();
+    const plansByDate = new Map<string, Plan[]>();
     for (const p of weekPlans) {
       const arr = plansByDate.get(p.date) || [];
       arr.push(p);
@@ -42,38 +83,10 @@ export default function StatsPage() {
     let totalReplaced = 0;
     let totalPlans = 0;
 
-    // Category stats
     const categoryStats = new Map<string, { done: number; total: number }>();
 
-    // Streak calculation (still global, not week-scoped)
-    let currentStreak = 0;
-    const allPlansByDate = new Map<string, typeof plans>();
-    for (const p of plans) {
-      const arr = allPlansByDate.get(p.date) || [];
-      arr.push(p);
-      allPlansByDate.set(p.date, arr);
-    }
-
-    for (let i = 0; i < 365; i++) {
-      const dateStr = format(subDays(parseISO(todayStr), i), 'yyyy-MM-dd');
-      const datePlans = allPlansByDate.get(dateStr);
-      if (!datePlans || datePlans.length === 0) {
-        if (i === 0) continue;
-        break;
-      }
-      const dateRecords = datePlans.map((p) => recordMap.get(p.id)).filter(Boolean) as typeof records;
-      const summary = computeDaySummary(dateStr, datePlans, dateRecords);
-      if (summary.doneCount > 0 && summary.missedCount === 0) {
-        currentStreak++;
-      } else if (i === 0) {
-        continue;
-      } else {
-        break;
-      }
-    }
-
     for (const [date, datePlans] of plansByDate) {
-      const dateRecords = datePlans.map((p) => recordMap.get(p.id)).filter(Boolean) as typeof records;
+      const dateRecords = datePlans.map((p) => recordMap.get(p.id)).filter(Boolean) as PlanRecord[];
       const summary = computeDaySummary(date, datePlans, dateRecords);
       totalDone += summary.doneCount;
       totalMissed += summary.missedCount;
@@ -99,7 +112,6 @@ export default function StatsPage() {
       totalMissed,
       totalReplaced,
       completionRate: totalPlans > 0 ? Math.round((totalDone / totalPlans) * 100) : 0,
-      currentStreak,
       weekLabel,
       isCurrentWeek,
       isFutureWeek,
@@ -110,7 +122,7 @@ export default function StatsPage() {
         rate: s.total > 0 ? Math.round((s.done / s.total) * 100) : 0,
       })).sort((a, b) => b.total - a.total),
     };
-  }, [weekOffset]);
+  }, [weekOffset, plans, recordMap]);
 
   return (
     <div className="max-w-2xl mx-auto">
@@ -118,7 +130,7 @@ export default function StatsPage() {
 
       {/* Current Streak - large block */}
       <div className="bg-gray-800/50 border border-gray-700 rounded-lg p-6 text-center mb-4">
-        <div className="text-4xl font-bold text-green-400">{stats.currentStreak}d</div>
+        <div className="text-4xl font-bold text-green-400">{currentStreak}d</div>
         <div className="text-sm text-gray-400 mt-1">Current Streak</div>
       </div>
 
@@ -131,13 +143,13 @@ export default function StatsPage() {
           &larr;
         </button>
         <span className="text-sm text-gray-300">
-          {stats.weekLabel}
-          {stats.isCurrentWeek && <span className="text-gray-500 ml-1">(이번 주)</span>}
+          {weekStats.weekLabel}
+          {weekStats.isCurrentWeek && <span className="text-gray-500 ml-1">(이번 주)</span>}
         </span>
         <button
           onClick={() => setWeekOffset((o) => o + 1)}
-          disabled={stats.isCurrentWeek}
-          className={`px-2 py-1 ${stats.isCurrentWeek ? 'text-gray-600 cursor-not-allowed' : 'text-gray-400 hover:text-white'}`}
+          disabled={weekStats.isCurrentWeek}
+          className={`px-2 py-1 ${weekStats.isCurrentWeek ? 'text-gray-600 cursor-not-allowed' : 'text-gray-400 hover:text-white'}`}
         >
           &rarr;
         </button>
@@ -145,40 +157,40 @@ export default function StatsPage() {
 
       {/* Weekly overview cards */}
       <div className="grid grid-cols-3 gap-3 mb-8">
-        <StatCard label="Completion Rate" value={`${stats.completionRate}%`} color="text-blue-400" />
-        <StatCard label="Total Plans" value={stats.totalPlans.toString()} color="text-white" />
-        <StatCard label="Done" value={stats.totalDone.toString()} color="text-green-400" />
+        <StatCard label="Completion Rate" value={`${weekStats.completionRate}%`} color="text-blue-400" />
+        <StatCard label="Total Plans" value={weekStats.totalPlans.toString()} color="text-white" />
+        <StatCard label="Done" value={weekStats.totalDone.toString()} color="text-green-400" />
       </div>
 
       {/* Status breakdown */}
-      {stats.totalPlans > 0 && (
+      {weekStats.totalPlans > 0 && (
         <div className="bg-gray-800/50 border border-gray-700 rounded-lg p-4 mb-6">
           <h3 className="text-sm font-semibold text-gray-300 mb-3">Status Breakdown</h3>
           <div className="flex h-4 rounded-full overflow-hidden mb-2">
-            {stats.totalDone > 0 && (
-              <div className="bg-green-500" style={{ width: `${(stats.totalDone / stats.totalPlans) * 100}%` }} />
+            {weekStats.totalDone > 0 && (
+              <div className="bg-green-500" style={{ width: `${(weekStats.totalDone / weekStats.totalPlans) * 100}%` }} />
             )}
-            {stats.totalReplaced > 0 && (
-              <div className="bg-blue-500" style={{ width: `${(stats.totalReplaced / stats.totalPlans) * 100}%` }} />
+            {weekStats.totalReplaced > 0 && (
+              <div className="bg-blue-500" style={{ width: `${(weekStats.totalReplaced / weekStats.totalPlans) * 100}%` }} />
             )}
-            {stats.totalMissed > 0 && (
-              <div className="bg-red-500" style={{ width: `${(stats.totalMissed / stats.totalPlans) * 100}%` }} />
+            {weekStats.totalMissed > 0 && (
+              <div className="bg-red-500" style={{ width: `${(weekStats.totalMissed / weekStats.totalPlans) * 100}%` }} />
             )}
           </div>
           <div className="flex gap-4 text-xs text-gray-400 whitespace-nowrap">
-            <span><span className="text-green-400">{stats.totalDone}</span> done</span>
-            <span><span className="text-blue-400">{stats.totalReplaced}</span> replaced</span>
-            <span><span className="text-red-400">{stats.totalMissed}</span> missed</span>
+            <span><span className="text-green-400">{weekStats.totalDone}</span> done</span>
+            <span><span className="text-blue-400">{weekStats.totalReplaced}</span> replaced</span>
+            <span><span className="text-red-400">{weekStats.totalMissed}</span> missed</span>
           </div>
         </div>
       )}
 
       {/* Category breakdown */}
-      {stats.categories.length > 0 && (
+      {weekStats.categories.length > 0 && (
         <div className="bg-gray-800/50 border border-gray-700 rounded-lg p-4">
           <h3 className="text-sm font-semibold text-gray-300 mb-3">By Category</h3>
           <div className="space-y-3">
-            {stats.categories.map((cat) => (
+            {weekStats.categories.map((cat) => (
               <div key={cat.name}>
                 <div className="flex justify-between text-sm mb-1">
                   <span className="text-gray-300">{cat.name}</span>
@@ -196,7 +208,7 @@ export default function StatsPage() {
         </div>
       )}
 
-      {stats.totalPlans === 0 && (
+      {weekStats.totalPlans === 0 && (
         <div className="text-center text-gray-500 py-12">
           <p className="text-4xl mb-2">&#128202;</p>
           <p>계획을 기록하면 통계가 표시됩니다</p>
