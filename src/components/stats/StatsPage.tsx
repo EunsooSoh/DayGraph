@@ -3,7 +3,7 @@
  * Licensed under the MIT License.
  */
 
-import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import * as storage from '../../lib/storage';
 import { computeDaySummary } from '../../lib/color';
 import { today } from '../../lib/date';
@@ -156,7 +156,10 @@ export default function StatsPage() {
       {/* Current Streak - large block */}
       <div className="bg-gray-800/50 border border-gray-700 rounded-lg p-6 text-center mb-4">
         <div className="text-4xl font-bold text-green-400">{currentStreak}d</div>
-        <div className="text-sm text-gray-400 mt-1">Current Streak</div>
+        <div className="text-sm text-gray-400 mt-1">
+          Current Streak
+          <InfoTooltip text="모든 계획을 달성(missed 0건)한 연속 일수입니다. 오늘 기준으로 계산됩니다." />
+        </div>
       </div>
 
       {/* Week navigation */}
@@ -187,9 +190,20 @@ export default function StatsPage() {
           value={`${weekStats.completionRate}%`}
           sub={`(${weekStats.pureCompletionRate}%)`}
           color="text-blue-400"
+          info="(달성 + 대체) / 전체 계획 비율입니다. 괄호 안은 달성만 포함한 순수 달성률입니다."
         />
-        <StatCard label="Total Plans" value={weekStats.totalPlans.toString()} color="text-white" />
-        <StatCard label="Done" value={weekStats.totalDone.toString()} color="text-green-400" />
+        <StatCard
+          label="Total Plans"
+          value={weekStats.totalPlans.toString()}
+          color="text-white"
+          info="해당 주에 등록된 전체 계획 수입니다."
+        />
+        <StatCard
+          label="Done"
+          value={weekStats.totalDone.toString()}
+          color="text-green-400"
+          info="해당 주에 달성 완료한 계획 수입니다. 대체(replaced)는 포함하지 않습니다."
+        />
       </div>
 
       {/* Status breakdown */}
@@ -273,14 +287,48 @@ export default function StatsPage() {
   );
 }
 
-function StatCard({ label, value, sub, color }: { label: string; value: string; sub?: string; color: string }) {
+function InfoTooltip({ text }: { text: string }) {
+  const [open, setOpen] = useState(false);
+  const ref = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (!open) return;
+    function handleClick(e: MouseEvent) {
+      if (ref.current && !ref.current.contains(e.target as Node)) setOpen(false);
+    }
+    document.addEventListener('mousedown', handleClick);
+    return () => document.removeEventListener('mousedown', handleClick);
+  }, [open]);
+
+  return (
+    <div ref={ref} className="relative inline-block ml-1">
+      <button
+        onClick={() => setOpen((o) => !o)}
+        className="w-4 h-4 rounded-full bg-gray-600 text-gray-300 text-[10px] leading-none inline-flex items-center justify-center hover:bg-gray-500 transition-colors"
+      >
+        i
+      </button>
+      {open && (
+        <div className="absolute z-50 bottom-full left-1/2 -translate-x-1/2 mb-1.5 w-48 px-2.5 py-1.5 rounded-lg bg-gray-700 border border-gray-600 text-xs text-gray-200 text-left shadow-lg whitespace-normal">
+          {text}
+          <div className="absolute top-full left-1/2 -translate-x-1/2 w-0 h-0 border-x-4 border-x-transparent border-t-4 border-t-gray-700" />
+        </div>
+      )}
+    </div>
+  );
+}
+
+function StatCard({ label, value, sub, color, info }: { label: string; value: string; sub?: string; color: string; info?: string }) {
   return (
     <div className="bg-gray-800/50 border border-gray-700 rounded-lg p-3 text-center">
       <div className={`text-2xl font-bold ${color}`}>
         {value}
         {sub && <span className="text-xs font-normal text-gray-500 ml-1">{sub}</span>}
       </div>
-      <div className="text-xs text-gray-400 mt-1">{label}</div>
+      <div className="text-xs text-gray-400 mt-1">
+        {label}
+        {info && <InfoTooltip text={info} />}
+      </div>
     </div>
   );
 }
