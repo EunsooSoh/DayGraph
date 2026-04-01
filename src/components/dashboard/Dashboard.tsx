@@ -6,15 +6,45 @@
 import { useState, useMemo, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import Heatmap from '../graph/Heatmap';
+import MonthlyHeatmap from '../graph/MonthlyHeatmap';
 import { today, formatDisplay } from '../../lib/date';
 import { computeDaySummary } from '../../lib/color';
 import * as storage from '../../lib/storage';
 import { parseISO } from 'date-fns';
 
+const MONTH_NAMES = ['1월', '2월', '3월', '4월', '5월', '6월', '7월', '8월', '9월', '10월', '11월', '12월'];
+
 export default function Dashboard() {
-  const [year, setYear] = useState(new Date().getFullYear());
+  const now = new Date();
+  const [year, setYear] = useState(now.getFullYear());
+  const [monthYear, setMonthYear] = useState(now.getFullYear());
+  const [month, setMonth] = useState(now.getMonth());
   const [tick, setTick] = useState(0);
   const navigate = useNavigate();
+
+  function handlePrevMonth() {
+    if (month === 0) {
+      setMonth(11);
+      setMonthYear((y) => y - 1);
+    } else {
+      setMonth((m) => m - 1);
+    }
+  }
+
+  function handleNextMonth() {
+    if (month === 11) {
+      setMonth(0);
+      setMonthYear((y) => y + 1);
+    } else {
+      setMonth((m) => m + 1);
+    }
+  }
+
+  function handleMonthToday() {
+    const t = new Date();
+    setMonthYear(t.getFullYear());
+    setMonth(t.getMonth());
+  }
 
   // Re-render heatmap when navigating back to dashboard
   useEffect(() => {
@@ -64,6 +94,36 @@ export default function Dashboard() {
             </button>
           </div>
         </div>
+      </div>
+
+      {/* Month selector + Monthly Heatmap */}
+      <div className="bg-gray-800/50 border border-gray-700 rounded-lg p-4 mb-6">
+        <div className="flex items-center justify-between mb-4">
+          <h2 className="text-sm font-semibold text-gray-300">
+            {monthYear}년 {MONTH_NAMES[month]}
+          </h2>
+          <div className="flex gap-2">
+            <button
+              onClick={handlePrevMonth}
+              className="text-gray-400 hover:text-white text-sm px-2 py-1 rounded bg-gray-700 hover:bg-gray-600"
+            >
+              &larr;
+            </button>
+            <button
+              onClick={handleMonthToday}
+              className="text-gray-400 hover:text-white text-sm px-2 py-1 rounded bg-gray-700 hover:bg-gray-600"
+            >
+              Today
+            </button>
+            <button
+              onClick={handleNextMonth}
+              className="text-gray-400 hover:text-white text-sm px-2 py-1 rounded bg-gray-700 hover:bg-gray-600"
+            >
+              &rarr;
+            </button>
+          </div>
+        </div>
+        <MonthlyHeatmap key={`${monthYear}-${month}-${tick}`} year={monthYear} month={month} onSelectDate={handleSelectDate} />
       </div>
 
       {/* Year selector + Heatmap */}
