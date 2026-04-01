@@ -45,7 +45,10 @@ export default function Dashboard() {
             {todaySummary.totalPlans > 0 && (
               <div className="text-right">
                 <p className="text-2xl font-bold text-green-400">
-                  {todaySummary.doneCount}/{todaySummary.totalPlans}
+                  {todaySummary.doneCount + todaySummary.replacedCount}/{todaySummary.totalPlans}
+                  <span className="text-xs font-normal text-gray-500 ml-1">
+                    ({todaySummary.doneCount}/{todaySummary.totalPlans})
+                  </span>
                 </p>
                 <p className="text-xs text-gray-400">completed</p>
               </div>

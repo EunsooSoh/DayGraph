@@ -134,7 +134,8 @@ export default function StatsPage() {
       totalDone,
       totalMissed,
       totalReplaced,
-      completionRate: totalPlans > 0 ? Math.round((totalDone / totalPlans) * 100) : 0,
+      completionRate: totalPlans > 0 ? Math.round(((totalDone + totalReplaced) / totalPlans) * 100) : 0,
+      pureCompletionRate: totalPlans > 0 ? Math.round((totalDone / totalPlans) * 100) : 0,
       weekLabel,
       isCurrentWeek,
       isFutureWeek,
@@ -181,7 +182,12 @@ export default function StatsPage() {
 
       {/* Weekly overview cards */}
       <div className="grid grid-cols-3 gap-3 mb-8">
-        <StatCard label="Completion Rate" value={`${weekStats.completionRate}%`} color="text-blue-400" />
+        <StatCard
+          label="Completion Rate"
+          value={`${weekStats.completionRate}%`}
+          sub={`(${weekStats.pureCompletionRate}%)`}
+          color="text-blue-400"
+        />
         <StatCard label="Total Plans" value={weekStats.totalPlans.toString()} color="text-white" />
         <StatCard label="Done" value={weekStats.totalDone.toString()} color="text-green-400" />
       </div>
@@ -267,10 +273,13 @@ export default function StatsPage() {
   );
 }
 
-function StatCard({ label, value, color }: { label: string; value: string; color: string }) {
+function StatCard({ label, value, sub, color }: { label: string; value: string; sub?: string; color: string }) {
   return (
     <div className="bg-gray-800/50 border border-gray-700 rounded-lg p-3 text-center">
-      <div className={`text-2xl font-bold ${color}`}>{value}</div>
+      <div className={`text-2xl font-bold ${color}`}>
+        {value}
+        {sub && <span className="text-xs font-normal text-gray-500 ml-1">{sub}</span>}
+      </div>
       <div className="text-xs text-gray-400 mt-1">{label}</div>
     </div>
   );

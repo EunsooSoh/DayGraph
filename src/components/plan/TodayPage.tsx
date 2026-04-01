@@ -19,13 +19,14 @@ export default function TodayPage() {
 
   const refresh = useCallback(() => setTick((t) => t + 1), []);
 
-  const { plans, recordMap, doneCount, total } = useMemo(() => {
+  const { plans, recordMap, doneCount, replacedCount, total } = useMemo(() => {
     storage.applyRecurringPlans(selectedDate);
     const plans = storage.getPlansByDate(selectedDate);
     const records = storage.getRecordsByDate(selectedDate);
     const recordMap = new Map(records.map((r) => [r.planId, r]));
     const doneCount = records.filter((r) => r.status === 'DONE').length;
-    return { plans, records, recordMap, doneCount, total: plans.length };
+    const replacedCount = records.filter((r) => r.status === 'REPLACED').length;
+    return { plans, records, recordMap, doneCount, replacedCount, total: plans.length };
   }, [selectedDate, tick]);
 
   return (
@@ -35,7 +36,12 @@ export default function TodayPage() {
         <div>
           <h2 className="text-xl font-bold">{formatDisplay(parseISO(selectedDate))}</h2>
           <p className="text-sm text-gray-400">
-            {total > 0 ? `${doneCount}/${total} 완료` : '계획이 없습니다'}
+            {total > 0 ? (
+              <>
+                {doneCount + replacedCount}/{total} 완료
+                <span className="text-gray-500 ml-1 text-xs">({doneCount}/{total})</span>
+              </>
+            ) : '계획이 없습니다'}
           </p>
         </div>
         <input
@@ -51,7 +57,7 @@ export default function TodayPage() {
         <div className="w-full bg-gray-700 rounded-full h-2 mb-4">
           <div
             className="bg-green-500 h-2 rounded-full transition-all duration-300"
-            style={{ width: `${(doneCount / total) * 100}%` }}
+            style={{ width: `${((doneCount + replacedCount) / total) * 100}%` }}
           />
         </div>
       )}
